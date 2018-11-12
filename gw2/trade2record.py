@@ -6,6 +6,15 @@ from requests import HTTPError
 buys, sells, current_sells, historical_buys, historical_sells, excludes = [], [], [], [], [], []
 
 
+def GoldFormat(coin):
+    if coin > 0:
+        sign = '+'
+    else:
+        sign = '-'
+    coin = abs(coin)
+    return '{} {}g {}s {}c'.format(sign, coin//10000, (coin % 10000) // 100, coin % 100)
+
+
 def Load():
     global historical_buys, historical_sells, excludes
     with open('data/api-key.txt') as keyfile:
@@ -87,17 +96,15 @@ def Generate():
         if sell['item_id'] in valid_items:
             totals[sell['item_id']] += sell['quantity'] * sell['price']
 
-    format_string = "{} ({}) => {} {}g {}s {}c"
+    format_string = "{} ({}) => {}"
 
     for k, v in sorted(totals.items(), key=lambda i: (i[1], i[0])):
         item = apiv1.item_details(k)
-        if v > 0:
-            sign = '+'
-        else:
-            sign = '-'
-        v = abs(v)
-        print(format_string.format(item['name'], k, sign,
-                                   v//10000, (v % 10000) // 100, v % 100))
+
+        print(format_string.format(item['name'], k, GoldFormat(v)))
+
+    print('================================')
+    print(GoldFormat(sum(totals.values())))
 
 
 def main():
