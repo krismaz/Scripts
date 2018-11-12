@@ -59,7 +59,7 @@ def Fetch():
     with open('data/historical-data.json', 'w') as historyfile:
         json.dump({
             'buys': buys,
-            'sells': sell
+            'sells': sells
         }, historyfile)
 
 
