@@ -3,7 +3,10 @@ import gw2api as apiv1
 import json
 from requests import HTTPError
 
+
+#Kris, seriously, fix this shit
 buys, sells, current_sells, historical_buys, historical_sells, excludes = [], [], [], [], [], []
+totals, adjustments = dict(), dict()
 
 
 def GoldFormat(coin):
@@ -16,7 +19,7 @@ def GoldFormat(coin):
 
 
 def Load():
-    global historical_buys, historical_sells, excludes
+    global historical_buys, historical_sells, excludes, adjustments
     with open('data/api-key.txt') as keyfile:
         key = keyfile.readline().strip()
 
@@ -29,6 +32,9 @@ def Load():
 
     with open('data/excludes.json') as excludesfile:
         excludes += json.load(excludesfile)
+
+    with open('data/adjustments.json') as adjustmentsfile:
+        adjustments.update(json.load(adjustmentsfile))
 
 
 def Fetch():
@@ -82,13 +88,13 @@ def Fetch():
 
 
 def Generate():
-    global sells, buys, current_sells, excludes
+    global sells, buys, current_sells, excludes, totals
 
     apiv1.set_cache_dir('./data/cache/')
 
     valid_items = set(sell['item_id'] for sell in sells).union(
         set(sell['item_id'] for sell in current_sells)).intersection(buy['item_id'] for buy in buys).difference(set(excludes))
-    totals = {item_id: 0 for item_id in valid_items}
+    totals.update({item_id: 0 for item_id in valid_items})
     for buy in buys:
         if buy['item_id'] in valid_items:
             totals[buy['item_id']] -= buy['quantity'] * buy['price']
@@ -96,6 +102,10 @@ def Generate():
         if sell['item_id'] in valid_items:
             totals[sell['item_id']] += sell['quantity'] * sell['price']*85//100
 
+
+
+def Output():
+    global totals
     format_string = "{} ({}) => {}"
 
     for k, v in sorted(totals.items(), key=lambda i: (i[1], i[0])):
@@ -106,11 +116,18 @@ def Generate():
     print('================================')
     print(GoldFormat(sum(totals.values())))
 
+def Adjust():
+    global totals, adjustments
+    for k, v in adjustments.items():
+        totals[int(k)] += v
+
 
 def main():
     Load()
     Fetch()
     Generate()
+    Adjust()
+    Output()
 
 
 if __name__ == '__main__':
