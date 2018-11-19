@@ -91,10 +91,10 @@ def Generate():
     totals = {item_id: 0 for item_id in valid_items}
     for buy in buys:
         if buy['item_id'] in valid_items:
-            totals[buy['item_id']] -= buy['quantity'] * buy['price']*85//100
+            totals[buy['item_id']] -= buy['quantity'] * buy['price']
     for sell in sells:
         if sell['item_id'] in valid_items:
-            totals[sell['item_id']] += sell['quantity'] * sell['price']
+            totals[sell['item_id']] += sell['quantity'] * sell['price']*85//100
 
     format_string = "{} ({}) => {}"
 
