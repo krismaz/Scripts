@@ -100,8 +100,7 @@ ENV/
 # mypy
 .mypy_cache/
 gw2/data/api-key.txt
-gw2/data/historical-data.json
-gw2/data/excludes.json
 gw2/data/cache/*
 gw2/data/excludes.json
-gw2/data/excludes.json
+gw2/data/adjustments.json
+gw2/data/historical-data.json
